@@ -14,7 +14,7 @@ const UserSchema = new mongoose.Schema({
     default: ''
   },
 
-  dateofbirth: {
+  dateOfBirth: {
     type: Date,
   },
 

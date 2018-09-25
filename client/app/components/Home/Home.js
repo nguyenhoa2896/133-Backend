@@ -1,5 +1,9 @@
 import React, { Component } from 'react';
 import 'whatwg-fetch';
+import {
+  setInStorage,
+  getFromStorage,
+} from '../../utils/storage';
 
 class Home extends Component {
   constructor(props) {
@@ -21,6 +25,7 @@ class Home extends Component {
     this.onTextboxChangeSignUpEmail = this.onTextboxChangeSignUpEmail.bind(this);
     this.onTextboxChangeSignUpPassword = this.onTextboxChangeSignUpPassword.bind(this);
     this.onSignUp = this.onSignUp.bind(this);
+    this.onSignIn = this.onSignIn.bind(this);
 
   }
 
@@ -44,6 +49,8 @@ class Home extends Component {
       signUpPassword: event.target.value,
     });
   }
+
+  //Sign Up
   onSignUp() {
     // Grab state
     const {
@@ -81,6 +88,49 @@ class Home extends Component {
       }
     });
   }
+//Sign In
+  onSignIn() {
+    // Grab state
+    const {
+      signInEmail,
+      signInPassword,
+    } = this.state;
+
+    this.setState({
+      isLoading: true,
+    });
+
+    // Post request to backend
+    fetch('/api/account/signin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: signInEmail,
+        password: signInPassword,
+      }),
+    }).then(res => res.json())
+      .then(json => {
+        console.log('json', json);
+        if (json.success) {
+          setInStorage('the_main_app', { token: json.token });
+          this.setState({
+            signInError: json.message,
+            isLoading: false,
+            signInPassword: '',
+            signInEmail: '',
+            token: json.token,
+          });
+        } else {
+          this.setState({
+            signInError: json.message,
+            isLoading: false,
+          });
+        }
+      });
+  }
+
   componentDidMount() {
     this.setState({
       isLoading: false
@@ -125,7 +175,7 @@ class Home extends Component {
         onChange={this.onTextboxChangeSignInPassword}
         />
         <br />
-        <button>Sign In</button>
+        <button onClick={this.onSignIn}>Sign In</button>
         </div>
         <br />
         <br />
